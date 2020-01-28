@@ -73,7 +73,7 @@ except:
 
 __all__ = ['stdout', 'log', 'l8', 'b8', 'l16', 'b16', 'l32', 'b32', 'l64', 'b64', 'zio', 'EOF', 'TIMEOUT', 'SOCKET', 'PROCESS', 'REPR', 'EVAL', 'HEX', 'UNHEX', 'BIN', 'UNBIN', 'RAW', 'NONE', 'COLORED', 'PIPE', 'TTY', 'TTY_RAW', 'cmdline']
 
-def stdout(s, color = None, on_color = None, attrs = None):
+def stdout(s: str, color = None, on_color = None, attrs = None):
     if not color:
         sys.stdout.write(s)
     else:
@@ -159,8 +159,12 @@ TTY = 'tty'             # io mode (process io): normal tty behavier, support Ctr
 TTY_RAW = 'ttyraw'      # io mode (process io): send all characters just untouched
 
 def COLORED(f, color = 'cyan', on_color = None, attrs = None): return lambda s : colored(f(s), color, on_color, attrs)
-def REPR(s): return repr(s.decode('utf-8')) + '\r\n'
-def EVAL(s):    # now you are not worried about pwning yourself
+def REPR(s) -> str: 
+    # WARNING: repr(b'xxx') is DIFFERENT between Python 2.x and 3.x!
+    if isinstance(s, bytes):
+        return repr(s)[1:] + '\r\n'  # to mimic py2
+    else: return repr(s) + '\r\n'
+def EVAL(s: bytes):    # now you are not worried about pwning yourself
     st = 0      # 0 for normal, 1 for escape, 2 for \xXX
     ret = []
     i = 0
@@ -193,19 +197,19 @@ def EVAL(s):    # now you are not worried about pwning yourself
             i += 1
         i += 1
     return bytes(ret)
-def HEX(s): return s.decode('utf-8').encode().hex() + '\r\n'  # "xxx".encode().hex() requires Python 3.5+
-def UNHEX(s): 
+def HEX(s: bytes) -> str: return s.decode('utf-8').encode().hex() + '\r\n'  # "xxx".encode().hex() requires Python 3.5+
+def UNHEX(s: bytes) -> bytes: 
     s=s.decode('utf-8').strip()
     return bytes.fromhex(len(s) % 2 and '0'+s or s) # hex-strings with odd length are now acceptable
-def BIN(s): return ''.join([format(ord(x),'08b') for x in s.decode('utf-8')]) + '\r\n'
-def UNBIN(s): s=s.decode('utf-8').strip(); return ''.join([chr(int(s[x:x+8],2)) for x in range(0,len(s),8)])
-def RAW(s):
+def BIN(s: bytes) -> str: return ''.join([format(ord(x),'08b') for x in s.decode('utf-8')]) + '\r\n'
+def UNBIN(s: bytes) -> str: s=s.decode('utf-8').strip(); return ''.join([chr(int(s[x:x+8],2)) for x in range(0,len(s),8)])
+def RAW(s: bytes) -> str:
     return s.decode('utf-8')
-def NONE(s): return ''
+def NONE(s) -> str: return ''
 
 class zio(object):
 
-    def __init__(self, target, stdin = PIPE, stdout = TTY_RAW, print_read = RAW, print_write = RAW, timeout = 8, cwd = None, env = None, sighup = signal.SIG_DFL, write_delay = 0.05, ignorecase = False, debug = None):
+    def __init__(self, target: str, stdin = PIPE, stdout = TTY_RAW, print_read = RAW, print_write = RAW, timeout = 8, cwd = None, env = None, sighup = signal.SIG_DFL, write_delay = 0.05, ignorecase = False, debug = None):
         """
         zio is an easy-to-use io library for pwning development, supporting an unified interface for local process pwning and remote tcp socket io
 
@@ -251,7 +255,7 @@ class zio(object):
 
         self.ignorecase = ignorecase
 
-        self.buffer = str()
+        self.buffer = bytes()
 
         if self.mode() == SOCKET:
             if isinstance(self.target, socket.socket):
@@ -733,7 +737,7 @@ class zio(object):
                     'job control with our child pid?')
         return False
 
-    def interact(self, escape_character=bytes([29]), input_filter = None, output_filter = None, raw_rw = True):
+    def interact(self, escape_character=bytes([29]), input_filter = None, output_filter = None, raw_rw = False):
         """
         when stdin is passed using os.pipe, backspace key will not work as expected,
         if wfd is not a tty, then when backspace pressed, I can see that 0x7f is passed, but vim does not delete backwards, so you should choose the right input when using zio
@@ -779,7 +783,7 @@ class zio(object):
                             break
             return
 
-        self.buffer = str()
+        self.buffer = bytes()
         # if input_filter is not none, we should let user do some line editing
         if not input_filter and os.isatty(pty.STDIN_FILENO):
             mode = tty.tcgetattr(pty.STDIN_FILENO)  # mode will be restored after interact
@@ -969,10 +973,10 @@ class zio(object):
             n += self.writeline(s)
         return n
 
-    def writeline(self, s = ''):
-        return self.write(s + os.linesep)
+    def writeline(self, s: bytes = b''):
+        return self.write(s + os.linesep.encode('utf-8'))
 
-    def write(self, s):
+    def write(self, s: bytes):
         if not s: return 0
         if self.mode() == SOCKET:
             if self.print_write: stdout(self._print_write(s))
@@ -1045,21 +1049,21 @@ class zio(object):
         self.wfd = -1
         self.closed = True
 
-    def read(self, size = None, timeout = -1):
+    def read(self, size = None, timeout = -1) -> bytes:
         if size == 0:
             return str()
-        elif size < 0 or size is None:
+        elif size is None or size < 0:
             self.read_loop(searcher_re(self.compile_pattern_list(EOF)), timeout = timeout)
             return self.before
 
-        cre = re.compile('.{%d}' % size, re.DOTALL)
+        cre = re.compile(b'.{%d}' % size, re.DOTALL)
         index = self.read_loop(searcher_re(self.compile_pattern_list([cre, EOF])), timeout = timeout)
         if index == 0:
-            assert self.before == ''
+            assert self.before == b''
             return self.after
         return self.before
 
-    def read_until_timeout(self, timeout = 0.05):
+    def read_until_timeout(self, timeout = 0.05) -> bytes:
         try:
             incoming = self.buffer
             while True:
@@ -1068,21 +1072,21 @@ class zio(object):
                 if self.mode() == PROCESS: time.sleep(0.0001)
         except EOF:
             err = sys.exc_info()[1]
-            self.buffer = str()
-            self.before = str()
+            self.buffer = bytes()
+            self.before = bytes()
             self.after = EOF
             self.match = incoming
             self.match_index = None
             raise EOF(str(err) + '\n' + str(self))
         except TIMEOUT:
-            self.buffer = str()
-            self.before = str()
+            self.buffer = bytes()
+            self.before = bytes()
             self.after = TIMEOUT
             self.match = incoming
             self.match_index = None
             return incoming
         except:
-            self.before = str()
+            self.before = bytes()
             self.after = None
             self.match = incoming
             self.match_index = None
@@ -1093,7 +1097,7 @@ class zio(object):
     def readable(self):
         return self.__select([self.rfd], [], [], 0) == ([self.rfd], [], [])
 
-    def readline(self, size = -1):
+    def readline(self, size = -1) -> bytes:
         if size == 0:
             return str()
         lineseps = [b'\r\n', b'\n', EOF]
@@ -1114,15 +1118,15 @@ class zio(object):
             lines.append(line)
         return lines
 
-    def read_until(self, pattern_list, timeout = -1, searchwindowsize = None):
-        if (isinstance(pattern_list, str) or
+    def read_until(self, pattern_list, timeout = -1, searchwindowsize = None) -> bytes:
+        if (isinstance(pattern_list, bytes) or
                 pattern_list in (TIMEOUT, EOF)):
             pattern_list = [pattern_list]
 
         def prepare_pattern(pattern):
             if pattern in (TIMEOUT, EOF):
                 return pattern
-            if isinstance(pattern, str):
+            if isinstance(pattern, bytes):
                 return pattern
             self._pattern_type_err(pattern)
 
@@ -1133,11 +1137,11 @@ class zio(object):
         pattern_list = [prepare_pattern(p) for p in pattern_list]
         matched = self.read_loop(searcher_string(pattern_list), timeout, searchwindowsize)
         ret = self.before
-        if isinstance(self.after, str):
+        if isinstance(self.after, bytes):
             ret += self.after       # after is the matched string, before is the string before this match
         return ret          # be compatible with telnetlib.read_until
 
-    def read_until_re(self, pattern, timeout = -1, searchwindowsize = None):
+    def read_until_re(self, pattern, timeout = -1, searchwindowsize = None) -> bytes:
         compiled_pattern_list = self.compile_pattern_list(pattern)
         matched = self.read_loop(searcher_re(compiled_pattern_list), timeout, searchwindowsize)
         ret = self.before
@@ -1185,7 +1189,7 @@ class zio(object):
                     timeout = end_time - time.time()
         except EOF:
             err = sys.exc_info()[1]
-            self.buffer = str()
+            self.buffer = bytes()
             self.before = incoming
             self.after = EOF
             index = searcher.eof_index
@@ -1259,7 +1263,7 @@ class zio(object):
             compile_flags = compile_flags | re.IGNORECASE
         compiled_pattern_list = []
         for idx, p in enumerate(patterns):
-            if isinstance(p, str):
+            if isinstance(p, str) or isinstance(p, bytes):
                 compiled_pattern_list.append(re.compile(p, compile_flags))
             elif p is EOF:
                 compiled_pattern_list.append(EOF)
@@ -1613,7 +1617,7 @@ class searcher_re(object):
         return best_index
 
 
-def which(filename):
+def which(filename: str):
 
     '''This takes a given filename; tries to find it in the environment path;
     then checks if it is executable. This returns the full path to the filename
@@ -1716,7 +1720,7 @@ def pidof_socket(prog):        # code borrowed from https://github.com/Gallopsle
             try:
                 for fd in os.listdir('/proc/%d/fd' % pid):
                     fd = os.readlink('/proc/%d/fd/%s' % (pid, fd))
-                    m = re.match('socket:\[(\d+)\]', fd)
+                    m = re.match(r'socket:\[(\d+)\]', fd)
                     if m:
                         this_inode = m.group(1)
                         if this_inode == inode:
