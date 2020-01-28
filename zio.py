@@ -166,22 +166,22 @@ def EVAL(s):    # now you are not worried about pwning yourself
     i = 0
     while i < len(s):
         if st == 0:
-            if s[i] == '\\':
+            if s[i] == b'\\':
                 st = 1
             else:
                 ret.append(s[i])
         elif st == 1:
-            if s[i] in ('"', "'", "\\", "t", "n", "r"):
-                if s[i] == 't':
-                    ret.append('\t')
-                elif s[i] == 'n':
-                    ret.append('\n')
-                elif s[i] == 'r':
-                    ret.append('\r')
+            if s[i] in (b'"', b"'", b"\\", b"t", b"n", b"r"):
+                if s[i] == b't':
+                    ret.append(b'\t')
+                elif s[i] == b'n':
+                    ret.append(b'\n')
+                elif s[i] == b'r':
+                    ret.append(b'\r')
                 else:
                     ret.append(s[i])
                 st = 0
-            elif s[i] == 'x':
+            elif s[i] == b'x':
                 st = 2
             else:
                 raise Exception('invalid repr of str %s' % s)
@@ -192,9 +192,11 @@ def EVAL(s):    # now you are not worried about pwning yourself
             st = 0
             i += 1
         i += 1
-    return ''.join(ret)
-def HEX(s): return str(s).encode('hex') + '\r\n'
-def UNHEX(s): s=str(s).strip(); return (len(s) % 2 and '0'+s or s).decode('hex') # hex-strings with odd length are now acceptable
+    return bytes(ret)
+def HEX(s): return str(s).encode().hex() + '\r\n'  # "xxx".encode().hex() requires Python 3.5+
+def UNHEX(s): 
+    s=s.decode('utf-8').strip()
+    return bytes.fromhex(len(s) % 2 and '0'+s or s) # hex-strings with odd length are now acceptable
 def BIN(s): return ''.join([format(ord(x),'08b') for x in str(s)]) + '\r\n'
 def UNBIN(s): s=str(s).strip(); return ''.join([chr(int(s[x:x+8],2)) for x in range(0,len(s),8)])
 # def RAW(s): return str(s)
@@ -858,7 +860,7 @@ class zio(object):
                         i = input_filter and -1 or data.rfind(escape_character)
                         if i != -1: data = data[:i]
                         if not os.isatty(self.wfd):     # we must do the translation when tty does not help
-                            data = data.replace('\r', '\n')
+                            data = data.replace(b'\r', b'\n')
                             # also echo back by ourselves, now we are echoing things we input by hand, so there is no need to wrap with print_write by default, unless raw_rw set to False
                             stdout(raw_rw and data or self._print_write(data))
                         while data != b'' and self.isalive():
