@@ -159,47 +159,46 @@ TTY = 'tty'             # io mode (process io): normal tty behavier, support Ctr
 TTY_RAW = 'ttyraw'      # io mode (process io): send all characters just untouched
 
 def COLORED(f, color = 'cyan', on_color = None, attrs = None): return lambda s : colored(f(s), color, on_color, attrs)
-def REPR(s): return repr(str(s)) + '\r\n'
+def REPR(s): return repr(s.decode('utf-8')) + '\r\n'
 def EVAL(s):    # now you are not worried about pwning yourself
     st = 0      # 0 for normal, 1 for escape, 2 for \xXX
     ret = []
     i = 0
     while i < len(s):
         if st == 0:
-            if s[i] == b'\\':
+            if s[i] == ord('\\'):
                 st = 1
             else:
                 ret.append(s[i])
         elif st == 1:
-            if s[i] in (b'"', b"'", b"\\", b"t", b"n", b"r"):
-                if s[i] == b't':
-                    ret.append(b'\t')
-                elif s[i] == b'n':
-                    ret.append(b'\n')
-                elif s[i] == b'r':
-                    ret.append(b'\r')
+            if s[i] in (ord('"'), ord("'"), ord("\\"), ord("t"), ord("n"), ord("r")):
+                if s[i] == ord('t'):
+                    ret.append(ord('\t'))
+                elif s[i] == ord('n'):
+                    ret.append(ord('\n'))
+                elif s[i] == ord('r'):
+                    ret.append(ord('\r'))
                 else:
                     ret.append(s[i])
                 st = 0
-            elif s[i] == b'x':
+            elif s[i] == ord('x'):
                 st = 2
             else:
                 raise Exception('invalid repr of str %s' % s)
         else:
             num = int(s[i:i+2], 16)
             assert 0 <= num < 256
-            ret.append(chr(num))
+            ret.append(num)
             st = 0
             i += 1
         i += 1
     return bytes(ret)
-def HEX(s): return str(s).encode().hex() + '\r\n'  # "xxx".encode().hex() requires Python 3.5+
+def HEX(s): return s.decode('utf-8').encode().hex() + '\r\n'  # "xxx".encode().hex() requires Python 3.5+
 def UNHEX(s): 
     s=s.decode('utf-8').strip()
     return bytes.fromhex(len(s) % 2 and '0'+s or s) # hex-strings with odd length are now acceptable
-def BIN(s): return ''.join([format(ord(x),'08b') for x in str(s)]) + '\r\n'
-def UNBIN(s): s=str(s).strip(); return ''.join([chr(int(s[x:x+8],2)) for x in range(0,len(s),8)])
-# def RAW(s): return str(s)
+def BIN(s): return ''.join([format(ord(x),'08b') for x in s.decode('utf-8')]) + '\r\n'
+def UNBIN(s): s=s.decode('utf-8').strip(); return ''.join([chr(int(s[x:x+8],2)) for x in range(0,len(s),8)])
 def RAW(s):
     return s.decode('utf-8')
 def NONE(s): return ''
