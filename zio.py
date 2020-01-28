@@ -41,7 +41,7 @@
 
 
 __version__ = "1.0.3"
-__project__ = "https://github.com/zTrix/zio"
+# __project__ = "https://github.com/zTrix/zio"
 
 import struct, socket, os, sys, subprocess, threading, pty, time, re, select, termios, resource, tty, errno, signal, fcntl, gc, platform, datetime, inspect, atexit
 try:
@@ -197,7 +197,9 @@ def HEX(s): return str(s).encode('hex') + '\r\n'
 def UNHEX(s): s=str(s).strip(); return (len(s) % 2 and '0'+s or s).decode('hex') # hex-strings with odd length are now acceptable
 def BIN(s): return ''.join([format(ord(x),'08b') for x in str(s)]) + '\r\n'
 def UNBIN(s): s=str(s).strip(); return ''.join([chr(int(s[x:x+8],2)) for x in range(0,len(s),8)])
-def RAW(s): return str(s)
+# def RAW(s): return str(s)
+def RAW(s):
+    return s.decode('utf-8')
 def NONE(s): return ''
 
 class zio(object):
@@ -419,7 +421,8 @@ class zio(object):
         else:
             raise Exception('bad print_read value')
 
-        assert callable(self._print_read) and len(inspect.getargspec(self._print_read).args) == 1
+        # assert callable(self._print_read) and len(inspect.getargspec(self._print_read).args) == 1
+        assert callable(self._print_read) and len(inspect.getfullargspec(self._print_read).args) == 1
 
     @property
     def print_write(self):
@@ -436,7 +439,8 @@ class zio(object):
         else:
             raise Exception('bad print_write value')
 
-        assert callable(self._print_write) and len(inspect.getargspec(self._print_write).args) == 1
+        # assert callable(self._print_write) and len(inspect.getargspec(self._print_write).args) == 1
+        assert callable(self._print_write) and len(inspect.getfullargspec(self._print_write).args) == 1
 
     def __pty_make_controlling_tty(self, tty_fd):
         '''This makes the pseudo-terminal the controlling tty. This should be
@@ -728,7 +732,7 @@ class zio(object):
                     'job control with our child pid?')
         return False
 
-    def interact(self, escape_character=chr(29), input_filter = None, output_filter = None, raw_rw = True):
+    def interact(self, escape_character=bytes([29]), input_filter = None, output_filter = None, raw_rw = True):
         """
         when stdin is passed using os.pipe, backspace key will not work as expected,
         if wfd is not a tty, then when backspace pressed, I can see that 0x7f is passed, but vim does not delete backwards, so you should choose the right input when using zio
