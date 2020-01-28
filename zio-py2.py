@@ -1,35 +1,35 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 #===============================================================================
 # The Star And Thank Author License (SATA)
-#
+# 
 # Copyright (c) 2014 zTrix(i@ztrix.me)
-#
+# 
 # Project Url: https://github.com/zTrix/zio
-#
+# 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-#
+# 
 # The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# And wait, the most important, you shall star/+1/like the project(s) in project url
-# section above first, and then thank the author(s) in Copyright section.
-#
+# all copies or substantial portions of the Software. 
+# 
+# And wait, the most important, you shall star/+1/like the project(s) in project url 
+# section above first, and then thank the author(s) in Copyright section. 
+# 
 # Here are some suggested ways:
-#
+# 
 #  - Email the authors a thank-you letter, and make friends with him/her/them.
 #  - Report bugs or issues.
 #  - Tell friends what a wonderful project this is.
 #  - And, sure, you can just express thanks in your mind without telling the world.
-#
-# Contributors of this project by forking have the option to add his/her name and
-# forked project url at copyright and project url sections, but shall not delete
+# 
+# Contributors of this project by forking have the option to add his/her name and 
+# forked project url at copyright and project url sections, but shall not delete 
 # or modify anything else in these two sections.
-#
+# 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,7 +39,7 @@
 # THE SOFTWARE.
 #===============================================================================
 
-
+from __future__ import print_function
 __version__ = "1.0.3"
 __project__ = "https://github.com/zTrix/zio"
 
@@ -47,7 +47,7 @@ import struct, socket, os, sys, subprocess, threading, pty, time, re, select, te
 try:
     from io import StringIO
 except ImportError:
-    from io import StringIO
+    from StringIO import StringIO
 
 try:
     from termcolor import colored
@@ -112,7 +112,7 @@ def _lb_wrapper(func):
                 v = struct.pack(endian + pfs[bits], i % (1 << bits))
                 ret.append(v)
             else:
-                if not i:
+                if not i: 
                     ret.append(None)
                 else:
                     v = struct.unpack(endian + pfs[bits] * (len(i) * 8/bits), i)
@@ -361,7 +361,7 @@ class zio(object):
 
             if self.cwd is not None:
                 os.chdir(self.cwd)
-
+            
             if self.env is None:
                 os.execv(self.command, self.args)
             else:
@@ -420,7 +420,7 @@ class zio(object):
             raise Exception('bad print_read value')
 
         assert callable(self._print_read) and len(inspect.getargspec(self._print_read).args) == 1
-
+ 
     @property
     def print_write(self):
         return self._print_write and (self._print_write is not NONE)
@@ -1386,7 +1386,7 @@ class zio(object):
         else:
             pid = self.pid
         if not pid:
-            input(colored('[ WARN ] pid unavailable to attach gdb, please find out the pid by your own', 'yellow'))
+            raw_input(colored('[ WARN ] pid unavailable to attach gdb, please find out the pid by your own', 'yellow'))
             return
         hints = ['attach %d' % pid]
         base = 0
@@ -1403,7 +1403,7 @@ class zio(object):
             for e in extras:
                 hints.append(str(e))
         gdb = colored('zio -l 0.5 -b "For help" -a "`printf \'' + '\\r\\n'.join(hints) + '\\r\\n\'`" gdb', 'magenta') + '\nuse cmdline above to attach gdb then press enter to continue ... '
-        input(gdb)
+        raw_input(gdb)
 
     def _not_impl(self):
         raise NotImplementedError("Not Implemented")
@@ -1693,8 +1693,7 @@ def all_pids():
     return [int(pid) for pid in os.listdir('/proc') if pid.isdigit()]
 
 def pidof_socket(prog):        # code borrowed from https://github.com/Gallopsled/pwntools to implement gdb attach of local socket
-    def toaddr(xxx_todo_changeme):
-        (host, port) = xxx_todo_changeme
+    def toaddr((host, port)):
         return '%08X:%04X' % (l32(socket.inet_aton(host)), port)
     def getpid(loc, rem):
         loc = toaddr(loc)
