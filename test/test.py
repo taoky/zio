@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import os, sys, unittest, string, time, random, subprocess, random, socket
 from zio import *
@@ -9,13 +9,13 @@ class Test(unittest.TestCase):
         pass
 
     def exec_script(self, script, *args, **kwargs):
-        from zio import which
+        from .zio import which
         py = which('python2') or which('python')
         self.assertNotEqual(py, None)
         return self.cmdline(' '.join([py, '-u', os.path.join(os.path.dirname(sys.argv[0]), script)] + list(args)), **kwargs)
 
     def cmdline(self, cmd, **kwargs):
-        print ''
+        print('')
         socat_exec = ',pty,stderr,ctty'
         if 'socat_exec' in kwargs:
             socat_exec = kwargs['socat_exec']
@@ -23,7 +23,7 @@ class Test(unittest.TestCase):
         io = zio(cmd, **kwargs)
         yield io
         io.close()
-        print '"%s" exited: ' % cmd, io.exit_code
+        print('"%s" exited: ' % cmd, io.exit_code)
     
         for _ in range(16):
             port = random.randint(31337, 65530)
@@ -42,7 +42,7 @@ class Test(unittest.TestCase):
             break
 
     def test_tty(self):
-        print ''
+        print('')
         io = zio('tty')
         out = io.read()
         self.assertEqual(out.strip(), 'not a tty', repr(out))
@@ -52,7 +52,7 @@ class Test(unittest.TestCase):
         self.assertTrue(out.strip().startswith('/dev/'), repr(out))
 
     def test_attach_socket(self):
-        print ''
+        print('')
         for _ in range(4):
             port = random.randint(31337, 65530)
             p = subprocess.Popen(['socat', 'TCP-LISTEN:%d,crlf' % port, 'SYSTEM:"echo HTTP/1.0 200; echo Content-Type\: text/plain; echo; echo Hello, zio;"'])
@@ -116,7 +116,7 @@ class Test(unittest.TestCase):
         for i in range(10):
             random.shuffle(unprintable)
 
-        from zio import which
+        from .zio import which
         py = which('python2') or which('python')
         self.assertNotEqual(py, None)
         io = zio(' '.join([py, '-u', os.path.join(os.path.dirname(sys.argv[0]), 'myprintf.py'), "'\\r\\n" + repr(''.join(unprintable))[1:-1] + "\\n'"]), stdout = TTY_RAW, print_read = COLORED(REPR))
@@ -199,7 +199,7 @@ if __name__ == '__main__':
         tests.extend(sys.argv[1:])
 
     if len(tests):
-        suite = unittest.TestSuite(map(Test, tests))
+        suite = unittest.TestSuite(list(map(Test, tests)))
 
     rs = unittest.TextTestRunner(verbosity = 2).run(suite)
     if len(rs.errors) > 0 or len(rs.failures) > 0:
