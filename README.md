@@ -1,7 +1,7 @@
 
 # zio-py3
 
-[![Build Status](https://travis-ci.org/taoky/zio.png)](https://travis-ci.org/taoky/zio)
+![Python package](https://github.com/taoky/zio/workflows/Python%20package/badge.svg)
 
 Original `zio` project: <https://github.com/zTrix/zio>, by [zTrix](https://github.com/zTrix/)
 
