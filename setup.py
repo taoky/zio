@@ -17,17 +17,17 @@ setup(
     description='Unified io lib for pwning development written in python.',
     long_description=open('README.txt').read(),
 
-    py_modules = ['zio'],
+    py_modules=['zio'],
 
     # Refers to test/test.py
     test_suite='test.test',
 
-    entry_points = {
+    entry_points={
         'console_scripts': [
             'zio=zio:main'
         ]
     },
-    classifiers = [
+    classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Intended Audience :: Developers',
