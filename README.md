@@ -46,8 +46,8 @@ This is a single-file project so in most cases you can just download [zio.py](ht
 pip is also supported, so you can also install by running 
 
 ```bash
-$ pip install termcolor # for color support, optional
-$ pip install zio
+$ pip3 install termcolor # for color support, optional
+$ pip3 install --upgrade git+https://github.com/taoky/zio.git
 ```
 
 ## Examples
