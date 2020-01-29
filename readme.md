@@ -1,7 +1,13 @@
 
-# zio
+# zio-py3
 
-[![Build Status](https://travis-ci.org/zTrix/zio.png)](https://travis-ci.org/zTrix/zio)
+[![Build Status](https://travis-ci.org/taoky/zio.png)](https://travis-ci.org/taoky/zio)
+
+Original `zio` project: <https://github.com/zTrix/zio>, by [zTrix](https://github.com/zTrix/)
+
+This repository tries to turn `zio` into a Python 3 project (well `pwntools` is just too much heavyweight). It is still unstable now.
+
+---
 
 [zio] is an easy-to-use io library for pwning development, supporting an unified interface for local process pwning and TCP socket io.
 
@@ -28,14 +34,14 @@ io.interact()
 
 ## Dependency
 
- - Linux or OSX
+ - Linux or macOS
  - Python 3.5+
  - termcolor (optional, for color support)
     - $ pip install termcolor
 
 ## Installation
 
-This is a single-file project so in most cases you can just download [zio.py](https://raw.githubusercontent.com/zTrix/zio/master/zio.py) and start using.
+This is a single-file project so in most cases you can just download [zio.py](https://raw.githubusercontent.com/taoky/zio/master/zio.py) and start using.
 
 pip is also supported, so you can also install by running 
 
@@ -77,7 +83,8 @@ Just don't read '\n' or '\r', use `readline()` instead
 
 ## Thanks (Also references)
 
- - [pexpect](https://github.com/pexpect/pexpect) I borrowed a lot of code from here
+ - [zio](https://github.com/zTrix/zio)
+ - [pexpect](https://github.com/pexpect/pexpect) I (zTrix) borrowed a lot of code from here
  - [sh](https://github.com/amoffat/sh)
  - python subprocess module
  - TTY related
@@ -86,4 +93,4 @@ Just don't read '\n' or '\r', use `readline()` instead
    - http://www.linusakesson.net/programming/tty/
 
 
-[zio]:https://github.com/zTrix/zio
+[zio]:https://github.com/taoky/zio
