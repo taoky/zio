@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-from distutils.core import setup
-from setuptools import find_packages
+from setuptools import setup
 
 from zio import __version__
 
@@ -35,11 +34,11 @@ setup(
         'Operating System :: POSIX',
         'Operating System :: MacOS :: MacOS X',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Topic :: Software Development',
         'Topic :: System',
         'Topic :: Terminals',
         'Topic :: Utilities',
     ],
+    python_requires='>=3.5',
 )

