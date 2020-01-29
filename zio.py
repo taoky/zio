@@ -115,10 +115,10 @@ def _lb_wrapper(func):
                 if not i:
                     ret.append(None)
                 else:
-                    v = struct.unpack(endian + pfs[bits] * (len(i) * 8/bits), i)
+                    v = struct.unpack(endian + pfs[bits] * (len(i) * 8 // bits), i)
                     ret += v
         if join:
-            return ''.join(ret)
+            return b''.join(ret)
         elif len(ret) == 1:
             return ret[0]
         elif len(ret) == 0:     # all of the input are empty strings
