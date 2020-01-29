@@ -1,4 +1,9 @@
+# Python extra files
 *.pyc
 dist
 build
 zio.egg-info
+
+# editors and IDEs
+.vscode/
+.idea/
