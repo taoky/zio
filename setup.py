@@ -5,12 +5,12 @@ from setuptools import setup
 from zio import __version__
 
 setup(
-    name='zio',
+    name='zio-py3',
     version=__version__,
 
-    author='Wenlei Zhu',
-    author_email='i@ztrix.me',
-    url='https://github.com/zTrix/zio',
+    # author='Wenlei Zhu',
+    # author_email='i@ztrix.me',
+    url='https://github.com/taoky/zio',
 
     license='LICENSE.txt',
     keywords="zio pwning io expect-like",
@@ -28,7 +28,7 @@ setup(
         ]
     },
     classifiers = [
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Operating System :: POSIX',
