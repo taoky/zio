@@ -219,7 +219,7 @@ class Test(unittest.TestCase):
             io.write(b''.join([bytes([x]) for x in range(0, 256)]) + b'\n')
             io.end()
             out = io.read()
-            expected = open("test_xxd.txt", "rb").read()
+            expected = open(os.path.join(os.path.dirname(sys.argv[0]), "test_xxd.txt"), "rb").read()
             self.assertEqual(out.replace(b'\r\n', b'\n'), expected, repr((out, expected)))
 
 
