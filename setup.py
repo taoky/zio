@@ -4,6 +4,15 @@ from setuptools import setup
 
 from zio import __version__
 
+import subprocess
+import traceback
+
+try:
+    long_description = subprocess.check_output(['pandoc', 'README.md', '--to=rst'], universal_newlines=True)
+except Exception as e:
+    print("Notice: Please install pandoc to convert README.md to rst format, for PyPI")
+    print("Continuing...")
+
 setup(
     name='zio-py3',
     version=__version__,
@@ -15,7 +24,7 @@ setup(
     license='LICENSE.txt',
     keywords="zio pwning io expect-like",
     description='Unified io lib for pwning development written in python.',
-    long_description=open('README.txt').read(),
+    long_description=long_description,
 
     py_modules=['zio'],
 
