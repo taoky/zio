@@ -270,7 +270,7 @@ def UNBIN(s: bytes) -> str:
 
 
 def RAW(s: bytes) -> str:
-    return s.decode('utf-8')
+    return s.decode('iso8859')
 
 
 def NONE(s) -> str:
